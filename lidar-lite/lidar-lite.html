@@ -1,0 +1,79 @@
+<script type="text/html" data-template-name="lidar lite">
+    <div class="form-row">
+        <label for="node-input-busno"><i class="fa fa-random"></i> Bus Number</label>
+        /dev/i2c-<input id="node-input-busno" placeholder="1" min="0" max="7" style="width:40px; height:16px;">
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-address-card-o"></i> Device Address</label>
+        <input type="text" id="node-input-address" placeholder="0x62 or 98">
+    </div>
+    <div class="form-row">
+        <label for="node-input-mode"><i class="fa fa-cog"></i> Mode</label>
+        <select id="node-input-mode">
+            <option value="0">Default mode, balanced performance</option>
+            <option value="1">Short range, high speed</option>
+            <option value="2">Default range, higher speed short range</option>
+            <option value="3">Maximum range</option>
+            <option value="4">High sensitivity detection</option>
+            <option value="5">Low sensitivity detection</option>
+            <option value="6">Short range, high speed, higher error</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-newAddress"><i class="fa fa-address-card"></i> Set New Address</label>
+        <input type="text" id="node-input-newAddress" placeholder="Leave blank to keep default">
+    </div>
+    <div class="form-row">
+        <label for="node-input-disableDefault"><i class="fa fa-toggle-off"></i> Disable Default Address</label>
+        <input type="checkbox" id="node-input-disableDefault" style="width:auto;">
+    </div>
+    <div class="form-row">
+        <label for="node-input-readCorrelation"><i class="fa fa-chart-line"></i> Read Correlation Record</label>
+        <input type="checkbox" id="node-input-readCorrelation" style="width:auto;">
+    </div>
+    <div class="form-row">
+        <label for="node-input-correlationReadings"><i class="fa fa-sliders"></i> Correlation Readings</label>
+        <input type="number" id="node-input-correlationReadings" placeholder="256" min="1" max="1024">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="lidar lite">
+    <p>Node for communicating with the Lidar Lite v3 device over I2C.</p>
+    <p>When triggered, it takes a distance measurement and outputs the distance in centimeters in <code>msg.payload.distance</code>.</p>
+    <p>Optionally, set a new I2C address and read the correlation record for advanced diagnostics.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('lidar lite', {
+        category: 'i2c bus',
+        defaults: {
+            name: { value: "" },
+            busno: { value: "1" },
+            address: { value: "0x62" },
+            mode: { value: "0" },
+            newAddress: { value: "" },
+            disableDefault: { value: false },
+            readCorrelation: { value: false },
+            correlationReadings: { value: "256" }
+        },
+        color: "#E35253",
+        inputs: 1,
+        outputs: 1,
+        icon: "serial.png",
+        label: function() { return this.name || 'lidar lite'; },
+        labelStyle: function() { return this.name ? "node_label_italic" : ""; },
+        oneditprepare: function() {
+            $("#node-input-busno").spinner({
+                min: 0,
+                max: 7
+            });
+            if (!this.busno) {
+                $("#node-input-busno").val("1");
+            }
+        }
+    });
+</script>

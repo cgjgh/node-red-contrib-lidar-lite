@@ -1,0 +1,28 @@
+{
+  "name": "node-red-contrib-lidar-lite",
+  "version": "1.0.0",
+  "description": " This library provides quick access to the basic functions of LIDAR-Lite",
+  
+  "main": "lidar-lite.js",
+  "files": [
+    "lidar-lite/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "i2c-bus": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "node-red": {
+    "version": ">=3.0.0",
+    "nodes": {
+      "lidar-lite": "lidar-lite/lidar-lite.js"
+    }
+  },
+  "author": "",
+  "license": "ISC"
+}
