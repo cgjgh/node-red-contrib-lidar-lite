@@ -1,5 +1,9 @@
 <script type="text/html" data-template-name="lidar lite">
     <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
         <label for="node-input-busno"><i class="fa fa-random"></i> Bus Number</label>
         /dev/i2c-<input id="node-input-busno" placeholder="1" min="0" max="7" style="width:40px; height:16px;">
     </div>
@@ -35,21 +39,57 @@
         <label for="node-input-correlationReadings"><i class="fa fa-sliders"></i> Correlation Readings</label>
         <input type="number" id="node-input-correlationReadings" placeholder="256" min="1" max="1024">
     </div>
+    <hr/>
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
+        <label for="node-input-units"><i class="fa fa-ruler-combined"></i> Output Units</label>
+        <select id="node-input-units">
+            <option value="cm">Centimeters (cm)</option>
+            <option value="m">Meters (m)</option>
+            <option value="in">Inches (in)</option>
+            <option value="ft">Feet (ft)</option>
+        </select>
+    </div>
+    <hr/>
+    <div class="form-row">
+        <label style="width:auto" for="node-input-intervalToggle"><i class="fa fa-clock"></i> Enable Interval Measurement</label>
+        <input type="checkbox" id="node-input-intervalToggle" style="display:inline-block; width:auto; vertical-align:top;">
+    </div>
+    <div class="form-row node-input-interval-row">
+        <label for="node-input-intervalValue"><i class="fa fa-hourglass-half"></i> Interval</label>
+        <input type="number" id="node-input-intervalValue" value="1" min="1" style="width: 70px !important;">
+        <select id="node-input-intervalUnits" style="width: 150px !important;">
+            <option value="ms">Milliseconds</option>
+            <option value="s">Seconds</option>
+            <option value="min">Minutes</option>
+        </select>
     </div>
 </script>
 
 <script type="text/html" data-help-name="lidar lite">
     <p>Node for communicating with the Lidar Lite v3 device over I2C.</p>
-    <p>When triggered, it takes a distance measurement and outputs the distance in centimeters in <code>msg.payload.distance</code>.</p>
+    <p>When triggered, or at a specified interval, it takes a distance measurement and outputs the distance in the selected units in <code>msg.payload.distance</code>.</p>
+    <p>If initialization fails, it will retry every 10 seconds.</p>
     <p>Optionally, set a new I2C address and read the correlation record for advanced diagnostics.</p>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.distance <span class="property-type">number</span></dt>
+        <dd>The measured distance in the configured units.</dd>
+        <dt class="optional">payload.units <span class="property-type">string</span></dt>
+        <dd>The units of the distance measurement (e.g., "cm", "m", "in", "ft").</dd>
+        <dt class="optional">payload.correlation <span class="property-type">array</span></dt>
+        <dd>If enabled, an array of correlation record values.</dd>
+    </dl>
+    <h3>Details</h3>
+    <p><b>Output Units:</b> Allows selection of measurement units (cm, m, in, ft).</p>
+    <p><b>Enable Interval Measurement:</b> When checked, the node will automatically output measurements at the specified interval.
+        If unchecked, the node will only output a measurement when it receives an input message.
+    </p>
+    <p><b>Interval:</b> Set the time between automatic measurements. Units can be milliseconds, seconds, or minutes.</p>
 </script>
 
 <script type="text/javascript">
     RED.nodes.registerType('lidar lite', {
-        category: 'i2c bus',
+        category: 'sensors',
         defaults: {
             name: { value: "" },
             busno: { value: "1" },
@@ -58,7 +98,11 @@
             newAddress: { value: "" },
             disableDefault: { value: false },
             readCorrelation: { value: false },
-            correlationReadings: { value: "256" }
+            correlationReadings: { value: "256" },
+            units: { value: "cm" }, // Added
+            intervalToggle: { value: false }, // Added
+            intervalValue: { value: "1" }, // Added
+            intervalUnits: { value: "s" } // Added
         },
         color: "#E35253",
         inputs: 1,
@@ -73,6 +117,28 @@
             });
             if (!this.busno) {
                 $("#node-input-busno").val("1");
+            }
+
+            // Show/hide interval options based on toggle
+            $("#node-input-intervalToggle").on("change", function() {
+                if ($(this).is(":checked")) {
+                    $(".node-input-interval-row").show();
+                } else {
+                    $(".node-input-interval-row").hide();
+                }
+            }).trigger("change"); // Trigger on load to set initial state
+
+            if (!this.units) {
+                $("#node-input-units").val("cm");
+            }
+            if (this.intervalToggle === undefined) {
+                $("#node-input-intervalToggle").prop('checked', false);
+            }
+             if (!this.intervalValue) {
+                $("#node-input-intervalValue").val("1");
+            }
+            if (!this.intervalUnits) {
+                $("#node-input-intervalUnits").val("s");
             }
         }
     });
