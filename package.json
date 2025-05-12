@@ -1,8 +1,17 @@
 {
   "name": "node-red-contrib-lidar-lite",
-  "version": "1.0.1",
-  "description": " This library provides quick access to the basic functions of LIDAR-Lite",
-  
+  "version": "1.0.3",
+  "description": " This node provides quick access to the basic functions of LIDAR-Lite",
+  "keywords": [
+    "node-red",
+    "distance-measurement",
+    "lidar",
+    "sensor"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cgjgh/node-red-dashboard-2-user-auth.git"
+  },
   "main": "lidar-lite.js",
   "files": [
     "lidar-lite/*",
